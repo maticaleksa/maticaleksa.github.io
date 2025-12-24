@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #06b6d4;
+            --primary-dark: #0891b2;
+            --primary-soft: rgba(6, 182, 212, 0.15);
+            --bg-main: #121212;
+            --card-bg: #1E1E1E;
+            --text-main: #FFFFFF;
+            --text-muted: #A3A3A3;
+            --success: #22D3EE;
+            --border-color: #333333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 375px;
+            background-color: var(--bg-main);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        /* --- Top App Bar --- */
+        .top-app-bar {
+            background: var(--card-bg);
+            height: 64px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+        }
+        .app-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            color: var(--text-main);
+        }
+        .action-btn svg { width: 24px; height: 24px; fill: currentColor; }
+        .notif-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 1px solid var(--card-bg);
+        }
+
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding-bottom: 88px;
+        }
+
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 6px;
+            margin-bottom: 4px;
+        }
+        .tab-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 10px 6px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+        .tab-btn.active {
+            color: var(--text-main);
+            border-color: rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 0 1px rgba(6, 182, 212, 0.2) inset;
+        }
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .section-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-top: 6px;
+            margin-bottom: 16px;
+        }
+        .cta-button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 8px 0;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .row:last-child { margin-bottom: 0; }
+        .row .meta { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: relative;
+            min-width: 110px;
+        }
+        .filter-select {
+            appearance: none;
+            background: transparent;
+            border: none;
+            color: inherit;
+            font: inherit;
+            padding: 0 16px 0 0;
+            cursor: pointer;
+            width: 100%;
+        }
+        .filter-chip::after {
+            content: "▼";
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: inherit;
+        }
+
+        .activity-day {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+        .activity-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-item.hidden { display: none; }
+        .activity-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .activity-amount { color: var(--success); font-weight: 600; }
+        .load-more-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .withdraw-item {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .withdraw-item:last-child { margin-bottom: 0; }
+        .withdraw-item .status { color: var(--success); font-weight: 600; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: flex; flex-direction: column; gap: 16px; }
+
+        /* --- Bottom Nav --- */
+        .bottom-nav {
+            height: 64px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            align-items: center;
+            padding: 0 8px;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-app-bar">
+            <div class="app-title">💰 Payout</div>
+            <div class="app-actions">
+                <button class="action-btn" onclick="alert('Notifications')">
+                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+                    <span class="notif-badge"></span>
+                </button>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="balance">Balance</button>
+                <button class="tab-btn" data-tab="activity">Activity</button>
+                <button class="tab-btn" data-tab="payouts">Payouts</button>
+            </div>
+
+            <div class="tab-panel active" id="balance">
+                <div class="card">
+                    <div class="section-title">Available Balance</div>
+                    <div class="balance-amount">€24.50</div>
+                    <button class="cta-button">Withdraw €24.50</button>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Earnings Breakdown</div>
+                    <div class="row">
+                        <div>
+                            <div>From my ads</div>
+                            <div class="meta">200 ads watched</div>
+                        </div>
+                        <strong>€20.00</strong>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <div>From referrals</div>
+                            <div class="meta">8 active referrals</div>
+                        </div>
+                        <strong>€4.00</strong>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <div>From devices</div>
+                            <div class="meta">1 device active</div>
+                        </div>
+                        <strong>€0.50</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Stats</div>
+                    <div class="row"><span>This month</span><strong>+€8.20</strong></div>
+                    <div class="row"><span>This week</span><strong>+€2.10</strong></div>
+                    <div class="row"><span>Today</span><strong>+€0.30</strong></div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="activity">
+                <div class="filters">
+                    <div class="filter-chip">
+                        <select class="filter-select" aria-label="Source filter">
+                            <option>All</option>
+                            <option>Me</option>
+                            <option>Referrals</option>
+                        </select>
+                    </div>
+                    <div class="filter-chip no-caret">This Week</div>
+                </div>
+
+                <div class="card">
+                    <div class="activity-day">Today, Dec 24</div>
+                    <div class="activity-item" data-type="me">
+                        <div class="activity-title">
+                            <span>14:30 📺 Watched ad</span>
+                            <span class="activity-amount">+€0.10</span>
+                        </div>
+                    </div>
+                    <div class="activity-item" data-type="me">
+                        <div class="activity-title">
+                            <span>13:25 📦 Device ad</span>
+                            <span class="activity-amount">+€0.10</span>
+                        </div>
+                    </div>
+                    <div class="activity-item" data-type="referrals">
+                        <div class="activity-title">
+                            <span>12:30 👥 John D. watched ad</span>
+                            <span class="activity-amount">+€0.02</span>
+                        </div>
+                    </div>
+                    <div class="activity-day">Yesterday, Dec 23</div>
+                    <div class="activity-item" data-type="referrals">
+                        <div class="activity-title">
+                            <span>18:20 👥 Sarah M. watched ad</span>
+                            <span class="activity-amount">+€0.02</span>
+                        </div>
+                    </div>
+                    <div class="activity-item" data-type="me">
+                        <div class="activity-title">
+                            <span>15:45 📺 Watched ad</span>
+                            <span class="activity-amount">+€0.10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="load-more-btn" onclick="alert('Load more activity')">Load More</button>
+            </div>
+
+            <div class="tab-panel" id="payouts">
+                <div class="card">
+                    <div class="section-title">Withdrawal History</div>
+                    <div class="withdraw-item">
+                        <div class="row"><strong>Dec 15, 2024</strong><strong>-€20.00</strong></div>
+                        <div class="row"><span>Status</span><span class="status">✓ Completed</span></div>
+                        <div class="row"><span>Arrived</span><span>Dec 18, 2024</span></div>
+                        <div class="row"><span>Bank</span><span>****1234</span></div>
+                    </div>
+                    <div class="withdraw-item">
+                        <div class="row"><strong>Dec 1, 2024</strong><strong>-€15.00</strong></div>
+                        <div class="row"><span>Status</span><span class="status">✓ Completed</span></div>
+                        <div class="row"><span>Arrived</span><span>Dec 4, 2024</span></div>
+                        <div class="row"><span>Bank</span><span>****1234</span></div>
+                    </div>
+                    <div class="withdraw-item">
+                        <div class="row"><strong>Nov 20, 2024</strong><strong>-€12.50</strong></div>
+                        <div class="row"><span>Status</span><span class="status">✓ Completed</span></div>
+                        <div class="row"><span>Arrived</span><span>Nov 23, 2024</span></div>
+                        <div class="row"><span>Bank</span><span>****1234</span></div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="row"><span>Total Withdrawn</span><strong>€47.50</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a class="nav-item" href="dashboardMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/></svg>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" href="watchMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm6 3l5 3-5 3V9z"/></svg>
+                <span>Watch</span>
+            </a>
+            <a class="nav-item active" href="payoutMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 1 3 3v1h4a2 2 0 0 1 2 2v3a5 5 0 0 1-5 5h-2v3a3 3 0 0 1-6 0v-3H6a5 5 0 0 1-5-5V7a2 2 0 0 1 2-2h4V4a3 3 0 0 1 3-3zm-1 7V5h2v3h3V7H8v1h3z"/></svg>
+                <span>Payout</span>
+            </a>
+            <a class="nav-item" href="settingsMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.41 0-8 2-8 4.5V21h16v-2.5C20 16 16.41 14 12 14z"/></svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        const activityFilter = document.querySelector('.filter-select');
+        const activityItems = document.querySelectorAll('.activity-item');
+
+        tabButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach((b) => b.classList.remove('active'));
+                tabPanels.forEach((panel) => panel.classList.remove('active'));
+                btn.classList.add('active');
+                const panel = document.getElementById(btn.dataset.tab);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
+        function applyActivityFilter() {
+            const value = activityFilter.value.toLowerCase();
+            activityItems.forEach((item) => {
+                if (value === 'all') {
+                    item.classList.remove('hidden');
+                    return;
+                }
+                const type = item.dataset.type || '';
+                item.classList.toggle('hidden', type !== value);
+            });
+        }
+
+        if (activityFilter) {
+            activityFilter.addEventListener('change', applyActivityFilter);
+            applyActivityFilter();
+        }
+    </script>
+</body>
+</html>

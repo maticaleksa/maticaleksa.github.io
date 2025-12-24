@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Dashboard - Dark Teal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Teal/Dark Palette */
+            --primary: #06b6d4; 
+            --primary-dark: #0891b2; 
+            --primary-soft: rgba(6, 182, 212, 0.15); 
+            
+            --bg-main: #121212; 
+            --card-bg: #1E1E1E; 
+            
+            --text-main: #FFFFFF; 
+            --text-muted: #A3A3A3; 
+            
+            --success: #22D3EE; 
+            --inactive: #525252; 
+            --border-color: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #000000;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        /* Mobile Container Simulation */
+        .app-container {
+            width: 100%;
+            max-width: 375px;
+            background-color: var(--bg-main);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: 812px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        /* --- NEW TOP APP BAR STYLES --- */
+        .top-app-bar {
+            background: var(--card-bg);
+            height: 64px;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        /* Left Side: Logo */
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+        }
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            fill: var(--primary);
+        }
+
+        /* Right Side: Actions */
+        .app-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px; /* Spacing between icons */
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            color: var(--text-main);
+        }
+        
+        .action-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: fill 0.2s;
+        }
+        .action-btn:hover svg { fill: var(--primary); }
+
+        /* Notification Badge */
+        .notif-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444; /* Red dot */
+            border-radius: 50%;
+            border: 1px solid var(--card-bg);
+        }
+
+        /* Profile Icon */
+        .profile-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+        }
+        .profile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- END APP BAR --- */
+
+        /* Scrollable Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 88px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .main-stats-balance {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .main-stats-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            display: block;
+            font-weight: 500;
+        }
+        
+        .stats-breakdown {
+            background: var(--bg-main);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+        .breakdown-row:last-child { margin-bottom: 0; }
+        .breakdown-val { font-weight: 600; color: var(--text-main); }
+        .breakdown-val.highlight { color: var(--primary); font-size: 14px;}
+
+        .stats-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .stat-highlight { color: var(--success); font-weight: 600; }
+
+        /* Share CTA (match dashboard) */
+        .share-row {
+            display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer;
+        }
+        .share-left { display: flex; align-items: center; gap: 12px; }
+        .share-icon { 
+            width: 36px; height: 36px; background: var(--primary-soft); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: var(--primary);
+        }
+        .share-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .share-text p { font-size: 12px; color: var(--text-muted); }
+
+        /* Copy Code Section */
+        .code-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--primary-soft);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px dashed var(--primary);
+        }
+        .code-text { font-weight: 700; color: var(--primary); letter-spacing: 1px; font-size: 15px;}
+        .copy-btn {
+            background: none; border: none; color: var(--primary);
+            font-weight: 600; font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 4px;
+        }
+        .copy-btn:hover { background: var(--primary-soft); }
+
+        /* List Section */
+        h2 { font-size: 16px; color: var(--text-main); margin-bottom: 12px; }
+
+        .referral-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .referral-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .avatar {
+            width: 36px; height: 36px;
+            background: var(--primary-dark); color: var(--text-main);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 600;
+        }
+        .user-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+        
+        .badge {
+            font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 600;
+        }
+        .badge.active { background: var(--primary-soft); color: var(--primary); }
+        .badge.inactive { background: var(--border-color); color: var(--text-muted); }
+
+        .referral-details-box {
+            background: var(--bg-main);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .earnings-row { display: flex; justify-content: space-between; align-items: center; }
+        .earnings-cut { color: var(--primary); font-weight: 600; font-size: 13px; }
+        .earnings-neutral { color: var(--inactive); }
+
+        .load-more-btn {
+            width: 100%; padding: 12px; background: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            color: var(--text-main); font-weight: 500; cursor: pointer;
+            margin-top: 10px; margin-bottom: 20px; transition: background 0.2s;
+        }
+        .load-more-btn:hover { background: var(--border-color); }
+
+        /* Toast */
+        #toast {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: var(--bg-main); padding: 12px 24px;
+            border-radius: 24px; font-weight: 600; font-size: 13px; opacity: 0;
+            transition: opacity 0.3s; pointer-events: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 20;
+        }
+        #toast.show { opacity: 1; }
+        
+        hr { border: 0; border-top: 1px solid var(--border-color); margin: 24px 0; }
+
+        /* --- Bottom Nav --- */
+        .bottom-nav {
+            height: 64px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            align-items: center;
+            padding: 0 8px;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <header class="top-app-bar">
+            <div class="app-logo">
+                <svg class="logo-icon" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zm0 9l2.5-1.25L12 8.5l-2.5 1.25L12 11zm0 2.5l-5-2.5-5 2.5L12 22l10-8.5-5-2.5-5 2.5z"/>
+                </svg>
+                <span>MyApp</span>
+            </div>
+
+            <div class="app-actions">
+                <button class="action-btn" onclick="alert('QR Code Scan')">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 3h6v6H3V3zm2 2v2h2V5H5zm8-2h6v6h-6V3zm2 2v2h2V5h-2zM3 13h6v6H3v-6zm2 2v2h2v-2H5zm13-2h1v2h-1v-2zm-1 2h-2v1h2v-1zm-4-2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4 2h2v2h-2v-2zm-2 2h2v2h-2v-2z"/>
+                    </svg>
+                </button>
+
+                <button class="action-btn" onclick="alert('Notifications')">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                    </svg>
+                    <span class="notif-badge"></span>
+                </button>
+
+                <div class="profile-icon" onclick="alert('Profile Settings')">
+                    <img src="https://ui-avatars.com/api/?name=User&background=0891b2&color=fff" alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <div class="content">
+            
+            <!-- <div class="page-title">👥 Referrals</div> -->
+
+            <div class="card">
+                <div class="main-stats-balance">€12.30</div>
+                <span class="main-stats-label">Total Commission Earned (your bonus)</span>
+                
+                <div class="stats-breakdown">
+                    <div class="breakdown-row">
+                        <span>Total Money earned:</span>
+                        <span class="breakdown-val">€61.50</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span>Your Commission Rate:</span>
+                        <span class="breakdown-val highlight">20%</span>
+                    </div>
+                </div>
+
+                <div class="stats-footer">
+                    <span>Total Referrals: 8</span>
+                    <span class="stat-highlight">This month: +€4.20</span>
+                </div>
+            </div>
+
+            <div class="card share-row" onclick="shareLink()">
+                <div class="share-left">
+                    <div class="share-icon">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                    </div>
+                    <div class="share-text">
+                        <h4>Invite Friends</h4>
+                        <p>Earn 20% of their earnings</p>
+                    </div>
+                </div>
+                <svg width="20" height="20" fill="#666" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </div>
+
+      
+
+
+
+            <h2>Your Referrals</h2>
+            <div id="referralList">
+                <div class="card referral-item">
+                    <div class="referral-header">
+                        <div class="user-info">
+                            <div class="avatar">JD</div>
+                            <div>
+                                <div class="user-name">John D.</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Joined 2 weeks ago</div>
+                            </div>
+                        </div>
+                        <span class="badge active">Active</span>
+                    </div>
+                    <div class="referral-details-box">
+                        <div class="earnings-row">
+                            <span>Money earned:</span>
+                            <span>€12.50</span>
+                        </div>
+                        <div class="earnings-row">
+                            <span>your bonus (20%):</span>
+                            <span class="earnings-cut">+€2.50 ✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card referral-item">
+                    <div class="referral-header">
+                        <div class="user-info">
+                            <div class="avatar">SM</div>
+                            <div>
+                                <div class="user-name">Sarah M.</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Joined 1 month ago</div>
+                            </div>
+                        </div>
+                        <span class="badge active">Active</span>
+                    </div>
+                    <div class="referral-details-box">
+                        <div class="earnings-row">
+                            <span>Money earned:</span>
+                            <span>€45.20</span>
+                        </div>
+                        <div class="earnings-row">
+                            <span>your bonus (20%):</span>
+                            <span class="earnings-cut">+€9.04 ✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card referral-item">
+                    <div class="referral-header">
+                        <div class="user-info">
+                            <div class="avatar" style="background: var(--border-color); color: var(--text-muted);">U7</div>
+                            <div>
+                                <div class="user-name" style="color: var(--text-muted);">User_7834</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Joined 3 months ago</div>
+                            </div>
+                        </div>
+                        <span class="badge inactive">Inactive</span>
+                    </div>
+                     <div class="referral-details-box" style="opacity: 0.7;">
+                        <div class="earnings-row">
+                            <span>Money earned:</span>
+                            <span>€0.00</span>
+                        </div>
+                        <div class="earnings-row">
+                            <span>your bonus (20%):</span>
+                            <span class="earnings-neutral">€0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="load-more-btn" onclick="loadMore()">Load More</button>
+        </div>
+        
+        <div id="toast">✓ Copied to clipboard!</div>
+
+        <nav class="bottom-nav">
+            <a class="nav-item" href="dashboardMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M12 3l9 8h-3v9h-5v-6H11v6H6v-9H3l9-8z"/></svg>
+                <span>Home</span>
+            </a>
+            <a class="nav-item" href="watchMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2zm6 3l5 3-5 3V9z"/></svg>
+                <span>Watch</span>
+            </a>
+            <a class="nav-item" href="payoutMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 1 3 3v1h4a2 2 0 0 1 2 2v3a5 5 0 0 1-5 5h-2v3a3 3 0 0 1-6 0v-3H6a5 5 0 0 1-5-5V7a2 2 0 0 1 2-2h4V4a3 3 0 0 1 3-3zm-1 7V5h2v3h3V7H8v1h3z"/></svg>
+                <span>Payout</span>
+            </a>
+            <a class="nav-item active" href="settingsMockup.html">
+                <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4.41 0-8 2-8 4.5V21h16v-2.5C20 16 16.41 14 12 14z"/></svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const code = document.getElementById('referralCode').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2500);
+            });
+        }
+
+        function shareLink() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join with my code!',
+                    text: 'Use my code ABC1234 to get started and we both earn rewards.',
+                    url: 'https://example.com/refer/ABC1234',
+                });
+            } else {
+                alert("Share sheet opened on mobile.");
+            }
+        }
+
+        function loadMore() {
+            const list = document.getElementById('referralList');
+            const sales = (Math.random() * 50 + 10).toFixed(2);
+            const cut = (sales * 0.20).toFixed(2);
+
+            const newItem = document.createElement('div');
+            newItem.className = 'card referral-item';
+            newItem.innerHTML = `
+                <div class="referral-header">
+                    <div class="user-info">
+                        <div class="avatar">NX</div>
+                         <div>
+                            <div class="user-name">New User ${Math.floor(Math.random() * 100)}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Joined just now</div>
+                        </div>
+                    </div>
+                    <span class="badge active">Active</span>
+                </div>
+                 <div class="referral-details-box">
+                    <div class="earnings-row">
+                        <span>Money earned:</span>
+                        <span>€${sales}</span>
+                    </div>
+                    <div class="earnings-row">
+                        <span>your bonus (20%):</span>
+                        <span class="earnings-cut">+€${cut} ✓</span>
+                    </div>
+                </div>
+            `;
+            newItem.style.opacity = '0';
+            newItem.style.transition = 'opacity 0.5s';
+            list.appendChild(newItem);
+            setTimeout(() => {
+                newItem.style.opacity = '1';
+                newItem.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 50);
+        }
+    </script>
+</body>
+</html>
